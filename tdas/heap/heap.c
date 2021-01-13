@@ -79,7 +79,7 @@ int heap_insertar (heap_t* heap, void* elemento) {
     }
 
     ((*heap).tope) ++;
-    void* tmp = realloc ((*heap).elementos, ((*heap).tope) * sizeof(void*));
+    void* tmp = realloc ((*heap).elementos, ((unsigned int)(*heap).tope) * sizeof(void*));
     if (!tmp) {
         return ERROR;
     }
@@ -103,7 +103,7 @@ void* heap_eliminar_raiz (heap_t* heap) {
     void* valor = (*heap).elementos[0];
     (*heap).elementos[0] = (*heap).elementos[(*heap).tope-1];
     ((*heap).tope) --;
-    void* tmp = realloc ((*heap).elementos, (*heap).tope * sizeof(void*));
+    void* tmp = realloc ((*heap).elementos, (unsigned int)(*heap).tope * sizeof(void*));
     if (!tmp) {
         return valor;
     }

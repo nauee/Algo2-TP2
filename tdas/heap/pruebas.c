@@ -26,7 +26,7 @@ manzana_t* crear_manzana (int color, int peso) {
     (*manzana).peso = peso;
     return manzana;
 }
-
+/*
 int main () {
     heap_t* heap = heap_crear (comparador_manzanas);
     manzana_t* m1 = crear_manzana (0, 15);
@@ -61,4 +61,4 @@ int main () {
     printf ("%i\n", (*retorno).peso);
     retorno = heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
-}
+}*/
