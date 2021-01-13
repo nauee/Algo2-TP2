@@ -31,6 +31,6 @@ int comparador_gimnasios (void* e1, void* e2) {
 
 int main () {
     heap_t* gimnasios = heap_crear(comparador_gimnasios);
-    cargar_gimnasios("gim.txt", gimnasios);
+    cargar_gimnasios("src/GimnasiosKanto.txt", gimnasios);
     mostrar_gimnasios(gimnasios);
 }

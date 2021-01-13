@@ -1,0 +1,29 @@
+G;Gimnasio de Ciudad Plateada;14;1
+L;Brock
+P;Geodude;9;24;26
+P;Onix;26;17;44
+E;Campista
+P;Geodude;9;21;22
+P;Sandshrew;14;21;20
+G;Gimnasio de Ciudad Celeste;21;3
+L;Misty
+P;Staryu;38;21;21
+P;Starmie;58;36;36
+E;Dominguera
+P;Goldeen;30;30;24
+E;Nadador
+P;Horsea;26;17;24
+P;Shellder;18;25;33
+G;Gimnasio de Ciudad Carmin;24;2
+L;Lt. Surge
+P;Voltorb;51;17;23
+P;Pikachu;40;24;13
+P;Raichu;58;48;27
+E;Caballero Tito
+P;Pikachu;50;30;16
+E;Mecanico Manolo
+P;Voltorb;51;17;23
+P;Magnemite;25;19;30
+E;Marinero
+P;Pikachu;46;28;15
+P;Pikachu;46;28;15
