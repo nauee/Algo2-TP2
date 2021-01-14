@@ -1,0 +1,11 @@
+E;Nahu
+P;Luxray;10;10;10
+P;Torterra;10;10;10
+P;Charizard;10;10;10
+P;Giratina;10;10;10
+P;Mewtwo;10;10;10
+P;Infernape;10;10;10
+P;Chimchar;10;10;10
+P;Piplup;10;10;10
+P;Squirtle;10;10;10
+P;Shinx;10;10;10

@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include "../datos.h"
+#include "../tdas/lista/lista.h"
 
 /****************************************** Constantes *******************************************/
 
@@ -30,7 +32,7 @@ int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t* entren
     if ((linea[0]) == 'E' || (linea[0]) == 'L') {
         leidos = sscanf(linea, FORMATO_ENTRENADOR, tipo_leido, (*entrenador_leido).nombre);
         (*entrenador_leido).es_lider = ((*tipo_leido) == 'L');
-        (*entrenador_leido).cant_pokemones = 0;
+        (*entrenador_leido).pokemones = lista_crear();
     } else if ((linea[0]) == 'P') {
         leidos = sscanf(linea, FORMATO_POKEMON, tipo_leido, (*pokemon_leido).nombre, &((*pokemon_leido).velocidad), &((*pokemon_leido).ataque), &((*pokemon_leido).defensa));
     } else if ((linea[0]) == 'G') {
@@ -43,8 +45,23 @@ int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t* entren
 }
 
 /*
+*   Precondiciones: Debe recibir un entrenador valido con su cola de pokemones inicializada y un pokemon a agregar valido.
+*   Postcondiciones: Agregara el pokemon a la cola de pokemones del entrenador.
+*/
+void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar) {
+
+    pokemon_t* pokemon = calloc (1, sizeof(pokemon_t));
+    if (!pokemon) {
+        return;
+    }
+    (*pokemon) = pokemon_agregar;
+    lista_encolar((*entrenador).pokemones, pokemon);
+
+}
+
+/*
 *   Precondiciones: Debe recibir un gimnasio valido con su pila de entrenadores inicializadas y un entrenador a agregar valido.
-*   Postcondiciones: Agregara el entrenador a la pila de entrenadores dentro del gimnasio.
+*   Postcondiciones: Agregara el entrenador a la pila de entrenadores del gimnasio.
 */
 void agregar_entrenador (gimnasio_t* gimnasio, entrenador_t entrenador_agregar) {
     
@@ -109,8 +126,7 @@ void cargar_gimnasios (char* ruta, heap_t* gimnasios){
             leidos = leer_de_archivo (arch_gimnasio, &tipo_leido, &entrenador_leido, &pokemon_leido, &gimnasio_leido);
             while (strcmp (gimnasio_leido.nombre, gimnasio_actual.nombre) == 0 && strcmp (entrenador_leido.nombre, entrenador_actual.nombre) == 0 &&leidos != EOF){
                 if (tipo_leido == 'P') {
-                    entrenador_actual.pokemones[entrenador_actual.cant_pokemones] = pokemon_leido;
-                    entrenador_actual.cant_pokemones ++;
+                    agregar_pokemon(&entrenador_actual, pokemon_leido);
                 }
                 leidos = leer_de_archivo (arch_gimnasio, &tipo_leido, &entrenador_leido, &pokemon_leido, &gimnasio_leido);
             }
@@ -118,6 +134,8 @@ void cargar_gimnasios (char* ruta, heap_t* gimnasios){
         }
         agregar_gimnasio(gimnasios, gimnasio_actual);
     }
+
+    fclose(arch_gimnasio);
 
 }
 
