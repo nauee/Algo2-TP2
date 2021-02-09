@@ -1,7 +1,7 @@
 #include "batallas.h"
 #include "../datos.h"
 
-#define MAX_NOMBRE 50
+#define MAX_NOMBRE 25
 
 // Formula: ((Ataque * 100) / Defensa * 25) + (Velocidad * 30)
 int funcion_batalla_1(void* pkm_1, void* pkm_2) {

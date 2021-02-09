@@ -17,8 +17,8 @@ static int leer_de_archivo (FILE* arch_personaje, char* tipo_leido, pokemon_t* p
 
     if ((linea[0]) == 'E') {
         leidos = sscanf(linea, FORMATO_ENTRENADOR, tipo_leido, (*personaje_leido).nombre);
-        (*personaje_leido).pokemon_para_combatir = lista_crear();
         (*personaje_leido).pokemon_obtenidos = lista_crear();
+        (*personaje_leido).cant_pokemon_para_combatir = 0;
     } else if ((linea[0]) == 'P') {
         leidos = sscanf(linea, FORMATO_POKEMON, tipo_leido, (*pokemon_leido).nombre, &((*pokemon_leido).velocidad), &((*pokemon_leido).ataque), &((*pokemon_leido).defensa));
     }
@@ -39,11 +39,11 @@ static void agregar_pokemon (personaje_t* personaje, pokemon_t pokemon_agregar) 
         return;
     }
     (*pokemon) = pokemon_agregar;
-    if (lista_elementos ((*personaje).pokemon_para_combatir) < 6) {
-        lista_encolar ((*personaje).pokemon_para_combatir, pokemon);
-    } else {
-        lista_encolar ((*personaje).pokemon_obtenidos, pokemon);
+    if ((*personaje).cant_pokemon_para_combatir < MAX_POKEMONES_COMBATE) {
+        (*personaje).pokemon_para_combatir[(*personaje).cant_pokemon_para_combatir] = pokemon;
+        ((*personaje).cant_pokemon_para_combatir) ++;
     }
+    lista_encolar ((*personaje).pokemon_obtenidos, pokemon);
 
 }
 

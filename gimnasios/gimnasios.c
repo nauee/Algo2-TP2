@@ -32,7 +32,7 @@ int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t* entren
     if ((linea[0]) == 'E' || (linea[0]) == 'L') {
         leidos = sscanf(linea, FORMATO_ENTRENADOR, tipo_leido, (*entrenador_leido).nombre);
         (*entrenador_leido).es_lider = ((*tipo_leido) == 'L');
-        (*entrenador_leido).pokemones = lista_crear();
+        (*entrenador_leido).cant_pokemon = 0;
     } else if ((linea[0]) == 'P') {
         leidos = sscanf(linea, FORMATO_POKEMON, tipo_leido, (*pokemon_leido).nombre, &((*pokemon_leido).velocidad), &((*pokemon_leido).ataque), &((*pokemon_leido).defensa));
     } else if ((linea[0]) == 'G') {
@@ -55,7 +55,8 @@ void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar) {
         return;
     }
     (*pokemon) = pokemon_agregar;
-    lista_encolar((*entrenador).pokemones, pokemon);
+    ((*entrenador).pokemon[(*entrenador).cant_pokemon]) = pokemon;
+    ((*entrenador).cant_pokemon) ++;
 
 }
 

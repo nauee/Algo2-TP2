@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "heap.h"
+#include "../heap.h"
 
 typedef struct manzana{
     int peso;
@@ -45,20 +45,28 @@ int main () {
     heap_insertar (heap, m6);
     heap_insertar (heap, m7);
     heap_insertar (heap, m8);
-    manzana_t* retorno = heap_eliminar_raiz (heap);
+    manzana_t* retorno = heap_ver_raiz (heap);
+    heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
-    retorno = heap_eliminar_raiz (heap);
+    retorno = heap_ver_raiz (heap);
+    heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
-    retorno = heap_eliminar_raiz (heap);
+    retorno = heap_ver_raiz (heap);
+    heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
-    retorno = heap_eliminar_raiz (heap);
+    retorno = heap_ver_raiz (heap);
+    heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
-    retorno = heap_eliminar_raiz (heap);
+    retorno = heap_ver_raiz (heap);
+    heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
-    retorno = heap_eliminar_raiz (heap);
+    retorno = heap_ver_raiz (heap);
+    heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
-    retorno = heap_eliminar_raiz (heap);
+    retorno = heap_ver_raiz (heap);
+    heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
-    retorno = heap_eliminar_raiz (heap);
+    retorno = heap_ver_raiz (heap);
+    heap_eliminar_raiz (heap);
     printf ("%i\n", (*retorno).peso);
 }

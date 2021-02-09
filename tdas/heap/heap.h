@@ -13,7 +13,9 @@ heap_t* heap_crear (heap_comparador comparador);
 
 int heap_insertar (heap_t* heap, void* elemento);
 
-void* heap_eliminar_raiz (heap_t* heap);
+void heap_eliminar_raiz (heap_t* heap);
+
+void* heap_ver_raiz (heap_t* heap);
 
 void heap_eliminar (heap_t* heap);
 
