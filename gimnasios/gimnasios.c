@@ -12,6 +12,7 @@
 #define FORMATO_ENTRENADOR "%c;%[^\n]\n"
 #define FORMATO_POKEMON "%c;%[^;];%i;%i;%i\n"
 #define FORMATO_GIMNASIO "%c;%[^;];%i;%i\n"
+#define MAX_PUNTOS_MEJORA 63
 
 /******************************************* Funciones *******************************************/
 
@@ -35,6 +36,7 @@ int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t* entren
         (*entrenador_leido).cant_pokemon = 0;
     } else if ((linea[0]) == 'P') {
         leidos = sscanf(linea, FORMATO_POKEMON, tipo_leido, (*pokemon_leido).nombre, &((*pokemon_leido).velocidad), &((*pokemon_leido).ataque), &((*pokemon_leido).defensa));
+        (*pokemon_leido).puntos_de_mejora = MAX_PUNTOS_MEJORA;
     } else if ((linea[0]) == 'G') {
         leidos = sscanf(linea, FORMATO_GIMNASIO, tipo_leido, (*gimnasio_leido).nombre, &((*gimnasio_leido).dificultad), &((*gimnasio_leido).id_funcion_batalla));
         (*gimnasio_leido).entrenadores = lista_crear ();

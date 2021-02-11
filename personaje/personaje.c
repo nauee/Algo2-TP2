@@ -5,6 +5,7 @@
 #define TAMANIO_BUFFER 1024
 #define FORMATO_ENTRENADOR "%c;%[^\n]\n"
 #define FORMATO_POKEMON "%c;%[^;];%i;%i;%i\n"
+#define PUNTOS_MAX_MEJORA 63
 
 static int leer_de_archivo (FILE* arch_personaje, char* tipo_leido, pokemon_t* pokemon_leido, personaje_t* personaje_leido) {
     
@@ -68,6 +69,7 @@ personaje_t* cargar_personaje (char* ruta) {
     }
     leidos = leer_de_archivo (arch_personaje, &tipo_leido, &pokemon_leido, personaje);
     while (leidos != EOF && tipo_leido == 'P'){
+        pokemon_leido.puntos_de_mejora = PUNTOS_MAX_MEJORA;
         agregar_pokemon (personaje, pokemon_leido);
         leidos = leer_de_archivo (arch_personaje, &tipo_leido, &pokemon_leido, personaje);
     }

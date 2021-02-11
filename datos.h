@@ -22,6 +22,7 @@ typedef struct pokemon {
     int velocidad;
     int defensa;
     int ataque;
+    int puntos_de_mejora;
 } pokemon_t;
 
 typedef struct entrenador {
