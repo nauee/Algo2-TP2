@@ -34,6 +34,11 @@ static int getch(void){
 	return ch;
 }
 
+void limpiar_buffer (){
+	char c;
+	while ((c = (char) getchar()) != '\n' && c != EOF);
+}
+
 void mostrar_gimnasios (heap_t* gimnasios) {
     int tope = (*gimnasios).tope;
     for (int k = 0; k < tope; k++) {
@@ -226,115 +231,58 @@ bool enfrentar_entrenador (entrenador_t* entrenador, personaje_t* personaje, int
 	return (estado_batalla == GANO);
 }
 
-void actualizar_menu_elegir_pokemon_lider (int *opcion_actual, entrenador_t* lider) {
-	if(*opcion_actual == -1){
-		*opcion_actual = (*lider).cant_pokemon - 1;
-	}else if(*opcion_actual == (*lider).cant_pokemon){
-		*opcion_actual = 0;
-	}
+void mostrar_menu_elegir_pokemon_lider (entrenador_t lider) {
 	system("clear");
 	printf(AMARILLO"╔╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╗\n");
 	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
-	for (int i = 0; i < (*lider).cant_pokemon; i++) {
-		if (*opcion_actual == i) {
-			printf(AMARILLO"╠╬╬╬╬╣ -> %-37s╠╬╬╬╬╣\n",(*(*lider).pokemon[i]).nombre);
-		} else {
-			printf(AMARILLO"╠╬╬╬╬╣    %-37s╠╬╬╬╬╣\n",(*(*lider).pokemon[i]).nombre);
-		}
+	for (int i = 0; i < lider.cant_pokemon; i++) {
+		printf(AMARILLO"╠╬╬╬╬╣    %03i: %-32s╠╬╬╬╬╣\n", i, (*lider.pokemon[i]).nombre);
 	}
 	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
-	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n"NORMAL);
+	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n");
+	printf("                          ");
 }
 
-void elegir_pokemon_lider (personaje_t* personaje, entrenador_t* lider) {
-	int opcion_actual = 0;
-	int tecla_pulsada;
-	bool entro_a_menu = false;
-	actualizar_menu_elegir_pokemon_lider(&opcion_actual, lider);
-	while(!entro_a_menu){
-		tecla_pulsada = getch();
-		switch(tecla_pulsada){
-			case 'W':
-				opcion_actual --;
-				actualizar_menu_elegir_pokemon_lider(&opcion_actual, lider);
-				break;
-			case 'w':
-				opcion_actual --;
-				actualizar_menu_elegir_pokemon_lider(&opcion_actual, lider);
-				break;
-			case 'S':
-				opcion_actual ++;
-				actualizar_menu_elegir_pokemon_lider(&opcion_actual, lider);
-				break;
-			case 's':
-				opcion_actual ++;
-				actualizar_menu_elegir_pokemon_lider(&opcion_actual, lider);
-				break;
-			case '\n':
-                entro_a_menu = true;
-				break;
-		}
+void elegir_pokemon_lider (personaje_t* personaje, entrenador_t lider) {
+	int opcion_seleccionada = 0;
+	mostrar_menu_elegir_pokemon_lider(lider);
+	scanf (" %i", &opcion_seleccionada);
+	while (opcion_seleccionada < 0 || opcion_seleccionada >= lider.cant_pokemon) {
+		mostrar_string_centrado ("Esa opcion no es valida", 53);
+		printf("\n                          ");
+		scanf (" %i", &opcion_seleccionada);
 	}
-	lista_insertar ((*personaje).pokemon_obtenidos, (*lider).pokemon[opcion_actual]);
+	
+	lista_insertar ((*personaje).pokemon_obtenidos, lider.pokemon[opcion_seleccionada]);
 }
 
-void actualizar_menu_victoria(int *opcion_actual, bool tomo_pokemon_lider){
-	if(*opcion_actual == -1){
-		*opcion_actual = 2;
-	}else if(*opcion_actual == 3){
-		*opcion_actual = 0;
-	}
-	printf(AMARILLO"╔╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╗\n");
-	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
-	if (tomo_pokemon_lider && *opcion_actual == 0) {
-		*opcion_actual = 1;
-	} else if (!tomo_pokemon_lider && *opcion_actual == 0) {
-		printf(AMARILLO"╠╬╬╬╬╣ -> Elegir un pokemon del lider                                                                     ╠╬╬╬╬╣\n");
-	} else if (!tomo_pokemon_lider && *opcion_actual != 0) {
-		printf(AMARILLO"╠╬╬╬╬╣    Elegir un pokemon del lider                                                                     ╠╬╬╬╬╣\n");
-	}
-	if(*opcion_actual == 1){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Rearmar equipo                                                                                  ╠╬╬╬╬╣\n");
-	}else{
-		printf(AMARILLO"╠╬╬╬╬╣    Rearmar equipo                                                                                  ╠╬╬╬╬╣\n");
-	}
-	if(*opcion_actual == 2){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Continuar                                                                                       ╠╬╬╬╬╣\n");
-	}else{
-		printf(AMARILLO"╠╬╬╬╬╣    Continuar                                                                                       ╠╬╬╬╬╣\n");
-	}
-	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
-	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n"NORMAL);
-}
+void mostrar_menu_victoria(bool tomo_pokemon_lider){
 
-void actualizar_menu_derrota (int *opcion_actual) {
-	if(*opcion_actual == -1){
-		*opcion_actual = 1;
-	}else if(*opcion_actual == 2){
-		*opcion_actual = 0;
-	}
 	printf(AMARILLO"\n╔╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╗\n");
 	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
-	if(*opcion_actual == 0){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Rearmar equipo                                                                                  ╠╬╬╬╬╣\n");
-	}else {
-		printf(AMARILLO"╠╬╬╬╬╣    Rearmar equipo                                                                                  ╠╬╬╬╬╣\n");
-	}
-	if (*opcion_actual == 1){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Reintentar gimnasio                                                                             ╠╬╬╬╬╣\n");
-	} else {
-		printf(AMARILLO"╠╬╬╬╬╣    Reintentar gimnasio                                                                             ╠╬╬╬╬╣\n");
-	}
-	if (*opcion_actual == 2){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Finalizar partida                                                                               ╠╬╬╬╬╣\n");
-	} else {
-		printf(AMARILLO"╠╬╬╬╬╣    Finalizar partida                                                                               ╠╬╬╬╬╣\n");
-	}
+	printf(AMARILLO"╠╬╬╬╬╣                                Ingresa la opcion que quieras elegir                                ╠╬╬╬╬╣\n");
+	if (!tomo_pokemon_lider)
+		printf(AMARILLO"╠╬╬╬╬╣    T: Elegir un pokemon del lider                                                                  ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    C: Rearmar equipo                                                                               ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    N: Continuar                                                                                    ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
+	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n");
+	printf("                                                  ");
+}
+
+void mostrar_menu_derrota () {
+	
+	printf(AMARILLO"\n╔╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╗\n");
+	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣                                Ingresa la opcion que quieras elegir                                ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    C: Rearmar equipo                                                                               ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    R: Reintentar gimnasio                                                                          ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    F: Finalizar partida                                                                            ╠╬╬╬╬╣\n");
 	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
 	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n"NORMAL);
 }
 
-void actualizar_menu_rearmar_equipo (int *opcion_actual, personaje_t* personaje) {
+void mostrar_menu_rearmar_equipo (int *opcion_actual, personaje_t* personaje) {
 	if(*opcion_actual == -1){
 		*opcion_actual = (int) lista_elementos((*personaje).pokemon_obtenidos) - 1;
 	}else if(*opcion_actual == lista_elementos((*personaje).pokemon_obtenidos)){
@@ -366,7 +314,7 @@ void actualizar_menu_rearmar_equipo (int *opcion_actual, personaje_t* personaje)
 
 }
 
-void actualizar_menu_rearmar_equipo_party (int *opcion_actual, personaje_t* personaje) {
+void mostrar_menu_rearmar_equipo_party (int *opcion_actual, personaje_t* personaje) {
 	
 	if(*opcion_actual == -1){
 		*opcion_actual = (*personaje).cant_pokemon_para_combatir - 1;
@@ -414,29 +362,29 @@ void rearmar_equipo (personaje_t* personaje) {
 	int tecla_pulsada;
 	bool entro_a_menu = false;
 	int pos_pkm_pc = -1;
-	actualizar_menu_rearmar_equipo(&opcion_actual, personaje);
+	mostrar_menu_rearmar_equipo(&opcion_actual, personaje);
 	while(!entro_a_menu){
 		tecla_pulsada = getch();
 		switch(tecla_pulsada){
 			case 'W':
 				opcion_actual --;
-				if (pos_pkm_pc == -1) actualizar_menu_rearmar_equipo(&opcion_actual, personaje);
-				else actualizar_menu_rearmar_equipo_party (&opcion_actual, personaje);
+				if (pos_pkm_pc == -1) mostrar_menu_rearmar_equipo(&opcion_actual, personaje);
+				else mostrar_menu_rearmar_equipo_party (&opcion_actual, personaje);
 				break;
 			case 'w':
 				opcion_actual --;
-				if (pos_pkm_pc == -1) actualizar_menu_rearmar_equipo(&opcion_actual, personaje);
-				else actualizar_menu_rearmar_equipo_party (&opcion_actual, personaje);
+				if (pos_pkm_pc == -1) mostrar_menu_rearmar_equipo(&opcion_actual, personaje);
+				else mostrar_menu_rearmar_equipo_party (&opcion_actual, personaje);
 				break;
 			case 'S':
 				opcion_actual ++;
-				if (pos_pkm_pc == -1) actualizar_menu_rearmar_equipo(&opcion_actual, personaje);
-				else actualizar_menu_rearmar_equipo_party (&opcion_actual, personaje);
+				if (pos_pkm_pc == -1) mostrar_menu_rearmar_equipo(&opcion_actual, personaje);
+				else mostrar_menu_rearmar_equipo_party (&opcion_actual, personaje);
 				break;
 			case 's':
 				opcion_actual ++;
-				if (pos_pkm_pc == -1) actualizar_menu_rearmar_equipo(&opcion_actual, personaje);
-				else actualizar_menu_rearmar_equipo_party (&opcion_actual, personaje);
+				if (pos_pkm_pc == -1) mostrar_menu_rearmar_equipo(&opcion_actual, personaje);
+				else mostrar_menu_rearmar_equipo_party (&opcion_actual, personaje);
 				break;
 			case '\n':
 
@@ -444,14 +392,14 @@ void rearmar_equipo (personaje_t* personaje) {
 					if (!es_pokemon_para_combatir ((*personaje).pokemon_para_combatir, (*personaje).cant_pokemon_para_combatir, (pokemon_t*) lista_elemento_en_posicion ((*personaje).pokemon_obtenidos, (size_t) opcion_actual))){
 						pos_pkm_pc = opcion_actual;
 						opcion_actual = 0;
-						actualizar_menu_rearmar_equipo_party (&opcion_actual, personaje);
+						mostrar_menu_rearmar_equipo_party (&opcion_actual, personaje);
 					} else {
-						printf (" Ese pokemon ya se encuentra para combatir ");
+						printf (" Ese pokemon ya se encuentra para combatir \n");
 					}
 				} else {
 					(*personaje).pokemon_para_combatir[opcion_actual] = (pokemon_t*) lista_elemento_en_posicion ((*personaje).pokemon_obtenidos, (size_t) pos_pkm_pc);
 					pos_pkm_pc = -1;
-					actualizar_menu_rearmar_equipo (&opcion_actual, personaje);
+					mostrar_menu_rearmar_equipo (&opcion_actual, personaje);
 				}
 				break;
 			case ' ':
@@ -491,96 +439,50 @@ void mostrar_derrota (char* nombre_personaje, char* nombre_gimnasio) {
 	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n"NORMAL);
 }
 
-void ganar_gimnasio (personaje_t* personaje, entrenador_t* lider, char* nombre_gimnasio, bool es_simulacion, bool tomo_pokemon_lider) {
+void ganar_gimnasio (personaje_t* personaje, entrenador_t lider, char* nombre_gimnasio, bool es_simulacion, bool tomo_pokemon_lider) {
 	if (es_simulacion) {
 		mostrar_victoria((*personaje).nombre, nombre_gimnasio);
 		return;
 	}
-	int opcion_actual = 0;
-	int tecla_pulsada;
-	bool entro_a_menu = false;
+	char opcion_seleccionada = ' ';
 	mostrar_victoria((*personaje).nombre, nombre_gimnasio);
-	actualizar_menu_victoria(&opcion_actual, tomo_pokemon_lider);
-	while(!entro_a_menu){
-		tecla_pulsada = getch();
-		switch(tecla_pulsada){
-			case 'W':
-				opcion_actual --;
-				mostrar_victoria ((*personaje).nombre, nombre_gimnasio);
-				actualizar_menu_victoria(&opcion_actual, tomo_pokemon_lider);
-				break;
-			case 'w':
-				opcion_actual --;
-				mostrar_victoria ((*personaje).nombre, nombre_gimnasio);
-				actualizar_menu_victoria(&opcion_actual, tomo_pokemon_lider);
-				break;
-			case 'S':
-				opcion_actual ++;
-				mostrar_victoria ((*personaje).nombre, nombre_gimnasio);
-				actualizar_menu_victoria(&opcion_actual, tomo_pokemon_lider);
-				break;
-			case 's':
-				opcion_actual ++;
-				mostrar_victoria ((*personaje).nombre, nombre_gimnasio);
-				actualizar_menu_victoria(&opcion_actual, tomo_pokemon_lider);
-				break;
-			case '\n':
-                entro_a_menu = true;
-				break;
-		}
+	mostrar_menu_victoria(tomo_pokemon_lider);
+	scanf (" %c", &opcion_seleccionada);
+	while (opcion_seleccionada != 'T' && opcion_seleccionada != 'C' && opcion_seleccionada != 'N') {
+		mostrar_string_centrado ("Esa opcion no es valida", 112);
+		printf("\n                                                  ");
+		scanf (" %c", &opcion_seleccionada);
 	}
-    if (opcion_actual == 0) {
+	limpiar_buffer ();
+    if (opcion_seleccionada == 'T') {
         elegir_pokemon_lider (personaje, lider);
 		ganar_gimnasio (personaje, lider, nombre_gimnasio, es_simulacion, true);
-    } else if (opcion_actual == 1) {
+    } else if (opcion_seleccionada == 'C') {
         rearmar_equipo (personaje);
-    } else if (opcion_actual == 2) {
+    } else if (opcion_seleccionada == 'N') {
 		return;
 	}
 }
 
-int perder_gimnasio (personaje_t* personaje, entrenador_t* lider, char* nombre_gimnasio, bool es_simulacion) {
+int perder_gimnasio (personaje_t* personaje, char* nombre_gimnasio, bool es_simulacion) {
 	if (es_simulacion) {
 		mostrar_derrota ((*personaje).nombre, nombre_gimnasio);
 		return PERDIO;
 	}
-	int opcion_actual = 0;
-	int tecla_pulsada;
-	bool entro_a_menu = false;
+	char opcion_seleccionada = ' ';
 	mostrar_derrota ((*personaje).nombre, nombre_gimnasio);
-	actualizar_menu_derrota(&opcion_actual);
-	while(!entro_a_menu){
-		tecla_pulsada = getch();
-		switch(tecla_pulsada){
-			case 'W':
-				opcion_actual --;
-				mostrar_derrota ((*personaje).nombre, nombre_gimnasio);
-				actualizar_menu_derrota(&opcion_actual);
-				break;
-			case 'w':
-				opcion_actual --;
-				mostrar_derrota ((*personaje).nombre, nombre_gimnasio);
-				actualizar_menu_derrota(&opcion_actual);
-				break;
-			case 'S':
-				opcion_actual ++;
-				mostrar_derrota ((*personaje).nombre, nombre_gimnasio);
-				actualizar_menu_derrota(&opcion_actual);
-				break;
-			case 's':
-				opcion_actual ++;
-				mostrar_derrota ((*personaje).nombre, nombre_gimnasio);
-				actualizar_menu_derrota(&opcion_actual);
-				break;
-			case '\n':
-                entro_a_menu = true;
-				break;
-		}
+	mostrar_menu_derrota();
+	scanf (" %c", &opcion_seleccionada);
+	while (opcion_seleccionada != 'C' && opcion_seleccionada != 'R' && opcion_seleccionada != 'F') {
+		mostrar_string_centrado ("Esa opcion no es valida", 112);
+		printf("\n                                                  ");
+		scanf (" %c", &opcion_seleccionada);
 	}
-    if (opcion_actual == 0) {
+	limpiar_buffer();
+    if (opcion_seleccionada == 'C') {
 		rearmar_equipo (personaje);
-		return perder_gimnasio (personaje, lider, nombre_gimnasio, es_simulacion);
-    } else if (opcion_actual == 1){
+		return perder_gimnasio (personaje, nombre_gimnasio, es_simulacion);
+    } else if (opcion_seleccionada == 'R'){
 		return REINTENTAR;
 	} else {
         return PERDIO;
@@ -594,46 +496,6 @@ void reestablecer_gimnasio (lista_t* entrenadores, lista_t* entrenadores_vencido
 		lista_desapilar (entrenadores_vencidos);
 	}
 	lista_destruir (entrenadores_vencidos);
-}
-
-void actualizar_menu_gimnasio (int* opcion_actual, char* nombre_gimnasio) {
-	if(*opcion_actual == -1){
-		*opcion_actual = 3;
-	}else if(*opcion_actual == 4){
-		*opcion_actual = 0;
-	}
-	system ("clear");
-	printf(AMARILLO"\n╔╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╗\n");
-	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
-	printf(AMARILLO"╠╬╬╬╬╣                                                                                                    ╠╬╬╬╬╣\n");
-	printf(AMARILLO"╠╬╬╬╬╣");
-	mostrar_string_centrado (nombre_gimnasio, MAX_LINEA_MENU);
-	printf("╠╬╬╬╬╣\n");
-	printf(AMARILLO"╠╬╬╬╬╣                                                                                                    ╠╬╬╬╬╣\n");
-	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
-	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
-	if(*opcion_actual == 0){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Informacion del entrenador                                                                      ╠╬╬╬╬╣\n");
-	}else {
-		printf(AMARILLO"╠╬╬╬╬╣    Informacion del entrenador                                                                      ╠╬╬╬╬╣\n");
-	}
-	if (*opcion_actual == 1){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Informacion del gimnasio                                                                        ╠╬╬╬╬╣\n");
-	} else {
-		printf(AMARILLO"╠╬╬╬╬╣    Informacion del gimnasio                                                                        ╠╬╬╬╬╣\n");
-	}
-	if (*opcion_actual == 2){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Rearmar equipo                                                                                  ╠╬╬╬╬╣\n");
-	} else {
-		printf(AMARILLO"╠╬╬╬╬╣    Rearmar equipo                                                                                  ╠╬╬╬╬╣\n");
-	}
-	if (*opcion_actual == 3){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Siguiente batalla                                                                               ╠╬╬╬╬╣\n");
-	} else {
-		printf(AMARILLO"╠╬╬╬╬╣    Siguiente batalla                                                                               ╠╬╬╬╬╣\n");
-	}
-	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
-	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n"NORMAL);
 }
 
 void mostrar_gimnasio (gimnasio_t gimnasio, lista_t* entrenadores_vencidos) {
@@ -662,45 +524,47 @@ void mostrar_gimnasio (gimnasio_t gimnasio, lista_t* entrenadores_vencidos) {
 	getchar ();
 }
 
+void mostrar_menu_gimnasio (char* nombre_gimnasio) {
+	system ("clear");
+	printf(AMARILLO"\n╔╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╗\n");
+	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣                                                                                                    ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣");
+	mostrar_string_centrado (nombre_gimnasio, MAX_LINEA_MENU);
+	printf("╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣                                Ingresa la opcion que quieras elegir                                ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣                                                                                                    ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    E: Informacion del entrenador                                                                   ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    G: Informacion del gimnasio                                                                     ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    C: Rearmar equipo                                                                               ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    B: Siguiente batalla                                                                            ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
+	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n");
+	printf("                                                        ");
+}
+
 void menu_gimnasio (gimnasio_t gimnasio, lista_t* entrenadores_vencidos, personaje_t* personaje) {
-	int opcion_actual = 0;
-	int tecla_pulsada;
-	bool entro_a_menu = false;
-	actualizar_menu_gimnasio(&opcion_actual, gimnasio.nombre);
-	while(!entro_a_menu){
-		tecla_pulsada = getch();
-		switch(tecla_pulsada){
-			case 'W':
-				opcion_actual --;
-				actualizar_menu_gimnasio(&opcion_actual, gimnasio.nombre);
-				break;
-			case 'w':
-				opcion_actual --;
-				actualizar_menu_gimnasio(&opcion_actual, gimnasio.nombre);
-				break;
-			case 'S':
-				opcion_actual ++;
-				actualizar_menu_gimnasio(&opcion_actual, gimnasio.nombre);
-				break;
-			case 's':
-				opcion_actual ++;
-				actualizar_menu_gimnasio(&opcion_actual, gimnasio.nombre);
-				break;
-			case '\n':
-                entro_a_menu = true;
-				break;
-		}
+	char opcion_seleccionada = ' ';
+	mostrar_menu_gimnasio(gimnasio.nombre);
+	scanf (" %c", &opcion_seleccionada);
+	while (opcion_seleccionada != 'E' && opcion_seleccionada != 'G' && opcion_seleccionada != 'C' && opcion_seleccionada != 'B') {
+		mostrar_string_centrado ("Esa opcion no es valida", 112);
+		printf("\n                                                        ");
+		scanf (" %c", &opcion_seleccionada);
 	}
-	if (opcion_actual == 0) {
+	limpiar_buffer();
+	if (opcion_seleccionada == 'E') {
 		mostrar_personaje (*personaje);
 		menu_gimnasio (gimnasio, entrenadores_vencidos, personaje);
-	} else if (opcion_actual == 1) {
+	} else if (opcion_seleccionada == 'G') {
 		mostrar_gimnasio (gimnasio, entrenadores_vencidos);
 		menu_gimnasio (gimnasio, entrenadores_vencidos, personaje);
-	} else if (opcion_actual == 2) {
+	} else if (opcion_seleccionada == 'C') {
 		rearmar_equipo (personaje);
 		menu_gimnasio (gimnasio, entrenadores_vencidos, personaje);
-	} else if (opcion_actual == 3){
+	} else if (opcion_seleccionada == 'B'){
 		return;
 	}
 }
@@ -730,9 +594,9 @@ int enfrentar_gimnasio (gimnasio_t gimnasio, personaje_t* personaje, bool es_sim
 	}
 
 	if (estado_batalla == GANO) {
-		ganar_gimnasio (personaje, lista_tope (entrenadores_vencidos), gimnasio.nombre, es_simulacion, false);
+		ganar_gimnasio (personaje, *(entrenador_t*)(lista_tope (entrenadores_vencidos)), gimnasio.nombre, es_simulacion, false);
 	} else {
-		estado_batalla = perder_gimnasio (personaje, lista_tope (entrenadores_vencidos), gimnasio.nombre, es_simulacion);
+		estado_batalla = perder_gimnasio (personaje, gimnasio.nombre, es_simulacion);
 		reestablecer_gimnasio (gimnasio.entrenadores, entrenadores_vencidos);
 	}
 
@@ -806,10 +670,10 @@ void jugar_juego (heap_t* gimnasios, personaje_t** personaje, bool es_simulacion
     enfrentar_gimnasios (gimnasios, *personaje, es_simulacion);
 }
 
-personaje_t* crear_personaje (personaje_t* personaje) {
+personaje_t* crear_entrenador (personaje_t* personaje) {
 	char ruta[MAX_RUTA];
 	printf ("Inserte la ruta del personaje: ");
-	scanf ("%[^\n]", ruta);
+	scanf (" %[^\n]", ruta);
 	return cargar_personaje (ruta);
 }
 
@@ -820,13 +684,8 @@ void agregar_nuevo_gimnasio (heap_t* gimnasios) {
 	cargar_gimnasios (ruta, gimnasios);
 }
 
-void actualizar_menu(int *opcion_actual, bool personaje_seleccionado){
-	if(*opcion_actual == -1){
-		*opcion_actual = 4;
-	}else if(*opcion_actual == 5){
-		*opcion_actual = 0;
-	}
-	system("clear");
+void mostrar_menu_inicio(bool personaje_seleccionado){
+	system ("clear");
 	printf(AMARILLO"╔╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╗\n");
 	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
 	printf(AMARILLO"╠╬╬╬╬╣                                         ╠╬╬╬╬╣\n");
@@ -834,93 +693,51 @@ void actualizar_menu(int *opcion_actual, bool personaje_seleccionado){
 	printf(AMARILLO"╠╬╬╬╬╣                                         ╠╬╬╬╬╣\n");
 	printf(AMARILLO"╠╬╬╬╬╣                 POKEMON                 ╠╬╬╬╬╣\n");
 	printf(AMARILLO"╠╬╬╬╬╣                                         ╠╬╬╬╬╣\n");
-	printf(AMARILLO"╠╬╬╬╬╣   Puedes moverte en el menu con W y S   ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣   Ingresa la opcion que quieras elegir  ╠╬╬╬╬╣\n");
 	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
 	printf(AMARILLO"╠╬╬╬╬╬╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╬╬╬╬╬╣\n");
-	if(*opcion_actual == 0){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Jugar                                ╠╬╬╬╬╣\n");
-	}else{
-		printf(AMARILLO"╠╬╬╬╬╣    Jugar                                ╠╬╬╬╬╣\n");
-	}
-	if(*opcion_actual == 1){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Simular partida                      ╠╬╬╬╬╣\n");
-	}else{
-		printf(AMARILLO"╠╬╬╬╬╣    Simular partida                      ╠╬╬╬╬╣\n");
-	}
-	if (personaje_seleccionado && *opcion_actual == 2) {
-		*opcion_actual = 3;
-	} else if (!personaje_seleccionado && *opcion_actual == 2) {
-		printf(AMARILLO"╠╬╬╬╬╣ -> Ingresar archivo personaje           ╠╬╬╬╬╣\n");
-	} else if (!personaje_seleccionado && *opcion_actual != 2) {
-		printf(AMARILLO"╠╬╬╬╬╣    Ingresar archivo personaje           ╠╬╬╬╬╣\n");
-	}
-	if(*opcion_actual == 3){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Agregar Gimnasio                     ╠╬╬╬╬╣\n");
-	}else{
-		printf(AMARILLO"╠╬╬╬╬╣    Agregar Gimnasio                     ╠╬╬╬╬╣\n");
-	}
-	if(*opcion_actual == 4){
-		printf(AMARILLO"╠╬╬╬╬╣ -> Salir                                ╠╬╬╬╬╣\n");
-	}else{
-		printf(AMARILLO"╠╬╬╬╬╣    Salir                                ╠╬╬╬╬╣\n");
-	}
+	printf(AMARILLO"╠╬╬╬╬╣    I: Comenzar partida                  ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    S: Simular partida                   ╠╬╬╬╬╣\n");
+	if (!personaje_seleccionado) 
+		printf(AMARILLO"╠╬╬╬╬╣    E: Ingresar archivo entrenador       ╠╬╬╬╬╣\n");
+	printf(AMARILLO"╠╬╬╬╬╣    A: Agregar Gimnasio                  ╠╬╬╬╬╣\n");
 	printf(AMARILLO"╠╬╬╬╬╬╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╦╬╬╬╬╬╣\n");
 	printf(AMARILLO"╠╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╬╣\n");
-	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n"NORMAL);
+	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n");
+	printf("                          ");
 }
 
-void menu_principal(heap_t* gimnasios, personaje_t** personaje){
-	fflush(stdin);
-	int opcion_actual = 0;
-	int tecla_pulsada;
-	bool entro_a_menu = false;
+void menu_inicio(heap_t* gimnasios, personaje_t** personaje){
+	
+	char opcion_seleccionada = ' ';
 	bool personaje_seleccionado = (*personaje != NULL);
-	actualizar_menu(&opcion_actual, personaje_seleccionado);
-	while(!entro_a_menu){
-		tecla_pulsada = getch();
-		switch(tecla_pulsada){
-			case 'W':
-				opcion_actual --;
-				actualizar_menu(&opcion_actual, personaje_seleccionado);
-				break;
-			case 'w':
-				opcion_actual --;
-				actualizar_menu(&opcion_actual, personaje_seleccionado);
-				break;
-			case 'S':
-				opcion_actual ++;
-				actualizar_menu(&opcion_actual, personaje_seleccionado);
-				break;
-			case 's':
-				opcion_actual ++;
-				actualizar_menu(&opcion_actual, personaje_seleccionado);
-				break;
-			case ' ':
-                entro_a_menu = true;
-				break;
-		}
+	mostrar_menu_inicio (personaje_seleccionado);
+	scanf (" %c", &opcion_seleccionada);
+	while (opcion_seleccionada != 'I' && opcion_seleccionada != 'S' && opcion_seleccionada != 'E' && opcion_seleccionada != 'A') {
+		mostrar_string_centrado ("Esa opcion no es valida", 53);
+		printf("\n                          ");
+		scanf (" %c", &opcion_seleccionada);
 	}
-    if (opcion_actual == 0) {
+	limpiar_buffer();
+    if (opcion_seleccionada == 'I') {
         jugar_juego (gimnasios, personaje, false);
-    } else if (opcion_actual == 1) {
+    } else if (opcion_seleccionada == 'S') {
         jugar_juego (gimnasios, personaje, true);
-    } else if (opcion_actual == 2) {
-        (*personaje) = crear_personaje (*personaje);
+    } else if (opcion_seleccionada == 'E') {
+        (*personaje) = crear_entrenador (*personaje);
 		if (!(*personaje)) {
 			printf ("Ha ocurrido un ERROR al seleccionar tu personaje, intenta nuevamente\n");
 		}
-		menu_principal (gimnasios, personaje);
-    } else if (opcion_actual == 3) {
+		menu_inicio (gimnasios, personaje);
+    } else if (opcion_seleccionada == 'A') {
         agregar_nuevo_gimnasio (gimnasios);
-		menu_principal (gimnasios, personaje);
-    } else {
-		return;
-	}
+		menu_inicio (gimnasios, personaje);
+    }
 }
 
 int main () {
 	heap_t* gimnasios = heap_crear (comparador_gimnasios);
 	personaje_t* personaje = NULL;
-    menu_principal(gimnasios, &personaje);
+    menu_inicio(gimnasios, &personaje);
     return 0;
 }
