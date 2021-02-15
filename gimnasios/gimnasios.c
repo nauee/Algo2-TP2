@@ -80,7 +80,14 @@ static void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar
 */
 void agregar_entrenador (gimnasio_t* gimnasio, entrenador_t entrenador_agregar) {
     
-    if (entrenador_agregar.nombre[0] == '\0' || entrenador_agregar.cant_pokemon == 0) {
+    if (entrenador_agregar.cant_pokemon == 0) {
+        return;
+    }
+
+    if (entrenador_agregar.nombre[0] == '\0') {
+        for (int i = 0; i < entrenador_agregar.cant_pokemon; i++) {
+            free (entrenador_agregar.pokemon[i]);
+        }
         return;
     }
 
@@ -99,16 +106,31 @@ void agregar_entrenador (gimnasio_t* gimnasio, entrenador_t entrenador_agregar) 
 */
 void agregar_gimnasio (heap_t* gimnasios, gimnasio_t gimnasio_agregar) {
     
-    if (lista_elementos(gimnasio_agregar.entrenadores) == 0 || gimnasio_agregar.nombre[0] == '\0' || gimnasio_agregar.dificultad <= 0 || gimnasio_agregar.id_funcion_batalla <= 0 || gimnasio_agregar.id_funcion_batalla > 5) {
+    bool esta_mal_cargado = false;
+    bool tiene_lider = false;
+
+    if (lista_elementos(gimnasio_agregar.entrenadores) == 0) {
         return;
     }
-    bool tiene_lider = false;
+
+    if (gimnasio_agregar.nombre[0] == '\0' || gimnasio_agregar.dificultad <= 0 || gimnasio_agregar.id_funcion_batalla <= 0 || gimnasio_agregar.id_funcion_batalla > 5) {
+        esta_mal_cargado = true;
+    }
     for (int i = 0; i < lista_elementos (gimnasio_agregar.entrenadores); i++) {
         if ((*(entrenador_t*) lista_elemento_en_posicion (gimnasio_agregar.entrenadores, (size_t) i)).es_lider) {
             tiene_lider = true;
         }
     }
-    if (!tiene_lider) {
+    if (!tiene_lider || esta_mal_cargado) {
+        while (lista_elementos(gimnasio_agregar.entrenadores) > 0) {
+		    entrenador_t* entrenador_borrar = (entrenador_t*) lista_primero (gimnasio_agregar.entrenadores);
+		    for (int i = 0; i < (*entrenador_borrar).cant_pokemon; i++) {
+		    	free ((*entrenador_borrar).pokemon[i]);
+		    }
+		    free (entrenador_borrar);
+		    lista_borrar_de_posicion (gimnasio_agregar.entrenadores, 0);
+	    }
+	    lista_destruir (gimnasio_agregar.entrenadores);
         return;
     }
 

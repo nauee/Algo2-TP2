@@ -699,9 +699,9 @@ void jugar_juego (heap_t* gimnasios, personaje_t** personaje, bool es_simulacion
 	if (!(*personaje)) {
 		*personaje = cargar_personaje ("src/Personaje.txt");
 	}
-	if (!(heap_ver_raiz (gimnasios))) {
+	/*if (!(heap_ver_raiz (gimnasios))) {
 		cargar_gimnasios ("src/GimnasiosKanto.txt", gimnasios);
-	}
+	}*/
 	mostrar_personaje (**personaje);
 	mostrar_gimnasios (gimnasios);
     enfrentar_gimnasios (gimnasios, *personaje, es_simulacion);
