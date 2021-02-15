@@ -21,23 +21,31 @@
 *   Postcondiciones: Leera una linea del archivo y la guardara en el dato correspondiente (entrenador, pokemon o gimnasio),
 *   ademas guardara tambien que tipo de dato leyo (G, E, L, P).
 */
-int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t* entrenador_leido, pokemon_t* pokemon_leido, gimnasio_t* gimnasio_leido) {
+static int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t* entrenador_leido, pokemon_t* pokemon_leido, gimnasio_t* gimnasio_leido) {
     
     char buffer[TAMANIO_BUFFER];
     int leidos = 0;
     char* linea = fgets(buffer, TAMANIO_BUFFER, arch_gimnasio);
     if (!linea) {
-        return -1;
+        return EOF;
     }
 
     if ((linea[0]) == 'E' || (linea[0]) == 'L') {
+        (*entrenador_leido).nombre[0] = '\0';
         leidos = sscanf(linea, FORMATO_ENTRENADOR, tipo_leido, (*entrenador_leido).nombre);
         (*entrenador_leido).es_lider = ((*tipo_leido) == 'L');
         (*entrenador_leido).cant_pokemon = 0;
     } else if ((linea[0]) == 'P') {
+        (*pokemon_leido).nombre[0] = '\0';
+        (*pokemon_leido).velocidad = 0;
+        (*pokemon_leido).ataque = 0;
+        (*pokemon_leido).defensa = 0;
         leidos = sscanf(linea, FORMATO_POKEMON, tipo_leido, (*pokemon_leido).nombre, &((*pokemon_leido).velocidad), &((*pokemon_leido).ataque), &((*pokemon_leido).defensa));
         (*pokemon_leido).puntos_de_mejora = MAX_PUNTOS_MEJORA;
     } else if ((linea[0]) == 'G') {
+        (*gimnasio_leido).nombre[0] = '\0';
+        (*gimnasio_leido).dificultad = 0;
+        (*gimnasio_leido).id_funcion_batalla = 0;
         leidos = sscanf(linea, FORMATO_GIMNASIO, tipo_leido, (*gimnasio_leido).nombre, &((*gimnasio_leido).dificultad), &((*gimnasio_leido).id_funcion_batalla));
         (*gimnasio_leido).entrenadores = lista_crear ();
     }
@@ -50,7 +58,11 @@ int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t* entren
 *   Precondiciones: Debe recibir un entrenador valido con su cola de pokemones inicializada y un pokemon a agregar valido.
 *   Postcondiciones: Agregara el pokemon a la cola de pokemones del entrenador.
 */
-void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar) {
+static void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar) {
+
+    if (pokemon_agregar.nombre[0] == '\0' || pokemon_agregar.velocidad <= 0 || pokemon_agregar.ataque <= 0 || pokemon_agregar.defensa <= 0) {
+        return;
+    }
 
     pokemon_t* pokemon = calloc (1, sizeof(pokemon_t));
     if (!pokemon) {
@@ -68,6 +80,10 @@ void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar) {
 */
 void agregar_entrenador (gimnasio_t* gimnasio, entrenador_t entrenador_agregar) {
     
+    if (entrenador_agregar.nombre[0] == '\0' || entrenador_agregar.cant_pokemon == 0) {
+        return;
+    }
+
     entrenador_t* entrenador = calloc (1, sizeof(entrenador_t));
     if (!entrenador) {
         return;
@@ -83,6 +99,19 @@ void agregar_entrenador (gimnasio_t* gimnasio, entrenador_t entrenador_agregar) 
 */
 void agregar_gimnasio (heap_t* gimnasios, gimnasio_t gimnasio_agregar) {
     
+    if (lista_elementos(gimnasio_agregar.entrenadores) == 0 || gimnasio_agregar.nombre[0] == '\0' || gimnasio_agregar.dificultad <= 0 || gimnasio_agregar.id_funcion_batalla <= 0 || gimnasio_agregar.id_funcion_batalla > 5) {
+        return;
+    }
+    bool tiene_lider = false;
+    for (int i = 0; i < lista_elementos (gimnasio_agregar.entrenadores); i++) {
+        if ((*(entrenador_t*) lista_elemento_en_posicion (gimnasio_agregar.entrenadores, (size_t) i)).es_lider) {
+            tiene_lider = true;
+        }
+    }
+    if (!tiene_lider) {
+        return;
+    }
+
     gimnasio_t* gimnasio = calloc (1, sizeof(gimnasio_t));
     if (!gimnasio) {
         return;
@@ -107,33 +136,29 @@ void cargar_gimnasios (char* ruta, heap_t* gimnasios){
         return;
     }
 
-    gimnasio_t* gimnasio = calloc (1, sizeof(gimnasio_t));
-    if (!gimnasio) {
-        return;
-    }
     gimnasio_t gimnasio_leido;
     entrenador_t entrenador_leido;
     pokemon_t pokemon_leido;
     char tipo_leido = ' ';
     int leidos = 0;
     leidos = leer_de_archivo (arch_gimnasio, &tipo_leido, &entrenador_leido, &pokemon_leido, &gimnasio_leido);
-    if (tipo_leido != 'G') {
-        return;
-    }
-
     while (leidos != EOF) {
         gimnasio_t gimnasio_actual = gimnasio_leido;
         leidos = leer_de_archivo (arch_gimnasio, &tipo_leido, &entrenador_leido, &pokemon_leido, &gimnasio_leido);
         while (strcmp (gimnasio_leido.nombre, gimnasio_actual.nombre) == 0 && leidos != EOF) {
-            entrenador_t entrenador_actual = entrenador_leido;
-            leidos = leer_de_archivo (arch_gimnasio, &tipo_leido, &entrenador_leido, &pokemon_leido, &gimnasio_leido);
-            while (strcmp (gimnasio_leido.nombre, gimnasio_actual.nombre) == 0 && strcmp (entrenador_leido.nombre, entrenador_actual.nombre) == 0 &&leidos != EOF){
-                if (tipo_leido == 'P') {
-                    agregar_pokemon(&entrenador_actual, pokemon_leido);
+            if ((tipo_leido == 'E' || tipo_leido == 'L')) {
+                entrenador_t entrenador_actual = entrenador_leido;
+                leidos = leer_de_archivo (arch_gimnasio, &tipo_leido, &entrenador_leido, &pokemon_leido, &gimnasio_leido);
+                while (strcmp (gimnasio_leido.nombre, gimnasio_actual.nombre) == 0 && strcmp (entrenador_leido.nombre, entrenador_actual.nombre) == 0 &&leidos != EOF){
+                    if (tipo_leido == 'P') {
+                        agregar_pokemon(&entrenador_actual, pokemon_leido);
+                    }
+                    leidos = leer_de_archivo (arch_gimnasio, &tipo_leido, &entrenador_leido, &pokemon_leido, &gimnasio_leido);
                 }
+                agregar_entrenador(&gimnasio_actual, entrenador_actual);
+            } else {
                 leidos = leer_de_archivo (arch_gimnasio, &tipo_leido, &entrenador_leido, &pokemon_leido, &gimnasio_leido);
             }
-            agregar_entrenador(&gimnasio_actual, entrenador_actual);
         }
         agregar_gimnasio(gimnasios, gimnasio_actual);
     }

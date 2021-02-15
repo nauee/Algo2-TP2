@@ -2,10 +2,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/****************************************** Constantes *******************************************/
+
 #define TAMANIO_BUFFER 1024
 #define FORMATO_ENTRENADOR "%c;%[^\n]\n"
 #define FORMATO_POKEMON "%c;%[^;];%i;%i;%i\n"
 #define PUNTOS_MAX_MEJORA 63
+
+/******************************************* Funciones *******************************************/
 
 static int leer_de_archivo (FILE* arch_personaje, char* tipo_leido, pokemon_t* pokemon_leido, personaje_t* personaje_leido) {
     
@@ -21,6 +25,10 @@ static int leer_de_archivo (FILE* arch_personaje, char* tipo_leido, pokemon_t* p
         (*personaje_leido).pokemon_obtenidos = lista_crear();
         (*personaje_leido).cant_pokemon_para_combatir = 0;
     } else if ((linea[0]) == 'P') {
+        (*pokemon_leido).nombre[0] = '\0';
+        (*pokemon_leido).velocidad = 0;
+        (*pokemon_leido).ataque = 0;
+        (*pokemon_leido).defensa = 0;
         leidos = sscanf(linea, FORMATO_POKEMON, tipo_leido, (*pokemon_leido).nombre, &((*pokemon_leido).velocidad), &((*pokemon_leido).ataque), &((*pokemon_leido).defensa));
     }
     
@@ -35,6 +43,10 @@ static int leer_de_archivo (FILE* arch_personaje, char* tipo_leido, pokemon_t* p
 */
 static void agregar_pokemon (personaje_t* personaje, pokemon_t pokemon_agregar) {
 
+    if (pokemon_agregar.nombre[0] == '\0' || pokemon_agregar.velocidad <= 0 || pokemon_agregar.ataque <= 0 || pokemon_agregar.defensa <= 0) {
+        return;
+    }
+
     pokemon_t* pokemon = calloc (1, sizeof(pokemon_t));
     if (!pokemon) {
         return;
@@ -44,7 +56,7 @@ static void agregar_pokemon (personaje_t* personaje, pokemon_t pokemon_agregar) 
         (*personaje).pokemon_para_combatir[(*personaje).cant_pokemon_para_combatir] = pokemon;
         ((*personaje).cant_pokemon_para_combatir) ++;
     }
-    lista_encolar ((*personaje).pokemon_obtenidos, pokemon);
+    lista_insertar ((*personaje).pokemon_obtenidos, pokemon);
 
 }
 
@@ -64,7 +76,9 @@ personaje_t* cargar_personaje (char* ruta) {
     char tipo_leido = ' ';
     int leidos;
     leidos = leer_de_archivo (arch_personaje, &tipo_leido, &pokemon_leido, personaje);
-    if (tipo_leido != 'E') {
+    if (tipo_leido != 'E' || (*personaje).nombre[0] == '\0') {
+        free (personaje);
+        fclose (arch_personaje);
         return NULL;
     }
     leidos = leer_de_archivo (arch_personaje, &tipo_leido, &pokemon_leido, personaje);
@@ -73,5 +87,8 @@ personaje_t* cargar_personaje (char* ruta) {
         agregar_pokemon (personaje, pokemon_leido);
         leidos = leer_de_archivo (arch_personaje, &tipo_leido, &pokemon_leido, personaje);
     }
+    fclose (arch_personaje);
     return personaje;
 }
+
+/*************************************************************************************************/

@@ -118,5 +118,13 @@ void heap_eliminar_raiz (heap_t* heap) {
     if (!tmp) {
         return;
     }
+    ((*heap).elementos) = tmp;
     sift_down (heap, 0);
+}
+
+void heap_destruir (heap_t* heap) {
+    while ((*heap).tope > 0) {
+        heap_eliminar_raiz (heap);
+    }
+    free (heap);
 }

@@ -8,6 +8,8 @@
 #include "personaje/personaje.h"
 #include "batallas/batallas.h"
 
+/****************************************** Constantes *******************************************/
+
 #define GANO 1
 #define PELEANDO 0
 #define PERDIO -1
@@ -18,6 +20,8 @@
 #define MAX_LINEA 66
 #define MAX_LINEA_MENU 100
 #define MAX_RUTA 100
+
+/******************************************* Funciones *******************************************/
 
 /*
 *	Postcondiciones: Devolvera la tecla pulsada por el usuario.
@@ -44,6 +48,8 @@ void mostrar_gimnasios (heap_t* gimnasios) {
     for (int k = 0; k < tope; k++) {
         gimnasio_t gimnasio_actual = *(gimnasio_t*)(*gimnasios).elementos[k];
         printf("%s\n", gimnasio_actual.nombre);
+		printf("Dificultad: %i\n", gimnasio_actual.dificultad);
+		printf("ID: %i\n", gimnasio_actual.id_funcion_batalla);
         for (int i = 0; i < lista_elementos(gimnasio_actual.entrenadores); i++) {
             entrenador_t entrenador_actual = *(entrenador_t*)lista_elemento_en_posicion(gimnasio_actual.entrenadores, (size_t)i);
             printf("\t%s: ", entrenador_actual.nombre);
@@ -58,6 +64,7 @@ void mostrar_gimnasios (heap_t* gimnasios) {
         }
     }
     printf("Hay %i gimnasio/s\n", tope);
+	getchar();
 }
 
 void mostrar_personaje (personaje_t personaje) {
@@ -243,17 +250,25 @@ void mostrar_menu_elegir_pokemon_lider (entrenador_t lider) {
 	printf("                          ");
 }
 
-void elegir_pokemon_lider (personaje_t* personaje, entrenador_t lider) {
+void eliminar_pokemon (entrenador_t* lider, int n_pokemon) {
+	for (int i = n_pokemon; i < (*lider).cant_pokemon; i++) {
+		(*lider).pokemon[i] = (*lider).pokemon[i+1];
+	}
+	(*lider).cant_pokemon --;
+}
+
+void elegir_pokemon_lider (personaje_t* personaje, entrenador_t* lider) {
 	int opcion_seleccionada = 0;
-	mostrar_menu_elegir_pokemon_lider(lider);
+	mostrar_menu_elegir_pokemon_lider(*lider);
 	scanf (" %i", &opcion_seleccionada);
-	while (opcion_seleccionada < 0 || opcion_seleccionada >= lider.cant_pokemon) {
+	while (opcion_seleccionada < 0 || opcion_seleccionada >= (*lider).cant_pokemon) {
 		mostrar_string_centrado ("Esa opcion no es valida", 53);
 		printf("\n                          ");
 		scanf (" %i", &opcion_seleccionada);
 	}
 	
-	lista_insertar ((*personaje).pokemon_obtenidos, lider.pokemon[opcion_seleccionada]);
+	lista_insertar ((*personaje).pokemon_obtenidos, (*lider).pokemon[opcion_seleccionada]);
+	eliminar_pokemon (lider, opcion_seleccionada);
 }
 
 void mostrar_menu_victoria(bool tomo_pokemon_lider){
@@ -439,7 +454,7 @@ void mostrar_derrota (char* nombre_personaje, char* nombre_gimnasio) {
 	printf(AMARILLO"╚╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╩╝\n"NORMAL);
 }
 
-void ganar_gimnasio (personaje_t* personaje, entrenador_t lider, char* nombre_gimnasio, bool es_simulacion, bool tomo_pokemon_lider) {
+void ganar_gimnasio (personaje_t* personaje, entrenador_t* lider, char* nombre_gimnasio, bool es_simulacion, bool tomo_pokemon_lider) {
 	if (es_simulacion) {
 		mostrar_victoria((*personaje).nombre, nombre_gimnasio);
 		return;
@@ -569,35 +584,48 @@ void menu_gimnasio (gimnasio_t gimnasio, lista_t* entrenadores_vencidos, persona
 	}
 }
 
-int enfrentar_gimnasio (gimnasio_t gimnasio, personaje_t* personaje, bool es_simulacion) {
+void liberar_entrenadores_vencidos (lista_t* entrenadores_vencidos) {
+	while (lista_elementos(entrenadores_vencidos) > 0) {
+		entrenador_t* entrenador_borrar = (entrenador_t*) lista_primero (entrenadores_vencidos);
+		for (int i = 0; i < (*entrenador_borrar).cant_pokemon; i++) {
+			free ((*entrenador_borrar).pokemon[i]);
+		}
+		free (entrenador_borrar);
+		lista_borrar_de_posicion (entrenadores_vencidos, 0);
+	}
+	lista_destruir (entrenadores_vencidos);
+}
+
+int enfrentar_gimnasio (gimnasio_t* gimnasio, personaje_t* personaje, bool es_simulacion) {
 	int estado_batalla = PELEANDO;
 	lista_t* entrenadores_vencidos = lista_crear ();
-	entrenador_t* proximo_entrenador = (entrenador_t*) lista_tope (gimnasio.entrenadores);
-	if (!enfrentar_entrenador (proximo_entrenador, personaje, gimnasio.id_funcion_batalla, es_simulacion)){
+	entrenador_t* proximo_entrenador = (entrenador_t*) lista_tope ((*gimnasio).entrenadores);
+	if (!enfrentar_entrenador (proximo_entrenador, personaje, (*gimnasio).id_funcion_batalla, es_simulacion)){
 		estado_batalla = PERDIO;
 	}
 	while (estado_batalla == PELEANDO) {
 		lista_apilar (entrenadores_vencidos, proximo_entrenador);
-		lista_desapilar (gimnasio.entrenadores);
-		proximo_entrenador = (entrenador_t*) lista_tope (gimnasio.entrenadores);
+		lista_desapilar ((*gimnasio).entrenadores);
+		proximo_entrenador = (entrenador_t*) lista_tope ((*gimnasio).entrenadores);
 		if (!proximo_entrenador) {
 			estado_batalla = GANO;
 		}
 		if (proximo_entrenador) {
 			if (!es_simulacion) {
-				menu_gimnasio (gimnasio, entrenadores_vencidos, personaje);
+				menu_gimnasio ((*gimnasio), entrenadores_vencidos, personaje);
 			}
-			if (!enfrentar_entrenador (proximo_entrenador, personaje, gimnasio.id_funcion_batalla, es_simulacion)){
+			if (!enfrentar_entrenador (proximo_entrenador, personaje, (*gimnasio).id_funcion_batalla, es_simulacion)){
 				estado_batalla = PERDIO;
 			}
 		}
 	}
 
 	if (estado_batalla == GANO) {
-		ganar_gimnasio (personaje, *(entrenador_t*)(lista_tope (entrenadores_vencidos)), gimnasio.nombre, es_simulacion, false);
+		ganar_gimnasio (personaje, (entrenador_t*)(lista_tope (entrenadores_vencidos)), (*gimnasio).nombre, es_simulacion, false);
+		liberar_entrenadores_vencidos (entrenadores_vencidos);
 	} else {
-		estado_batalla = perder_gimnasio (personaje, gimnasio.nombre, es_simulacion);
-		reestablecer_gimnasio (gimnasio.entrenadores, entrenadores_vencidos);
+		estado_batalla = perder_gimnasio (personaje, (*gimnasio).nombre, es_simulacion);
+		reestablecer_gimnasio ((*gimnasio).entrenadores, entrenadores_vencidos);
 	}
 
 	return estado_batalla;
@@ -626,13 +654,20 @@ void mostrar_cargando () {
 	printf(NORMAL);
 }
 
+void eliminar_gimnasio (heap_t* gimnasios) {
+	gimnasio_t* gimnasio_borrar = (gimnasio_t*) heap_ver_raiz (gimnasios);
+	lista_destruir ((*gimnasio_borrar).entrenadores);
+	free (gimnasio_borrar);
+	heap_eliminar_raiz (gimnasios);
+} 
+
 void enfrentar_gimnasios (heap_t* gimnasios, personaje_t* personaje, bool es_simulacion) {
 	system("clear");
 	int estado_batalla = PELEANDO;
 	gimnasio_t* proximo_gimnasio = (gimnasio_t*) heap_ver_raiz (gimnasios);
 	if (proximo_gimnasio) {
 		presentar_gimnasio (*proximo_gimnasio);
-		estado_batalla = enfrentar_gimnasio (*proximo_gimnasio, personaje, es_simulacion);
+		estado_batalla = enfrentar_gimnasio (proximo_gimnasio, personaje, es_simulacion);
 		if (estado_batalla == GANO) {
 			estado_batalla = PELEANDO;
 		}
@@ -640,7 +675,7 @@ void enfrentar_gimnasios (heap_t* gimnasios, personaje_t* personaje, bool es_sim
 	mostrar_cargando ();
     while (estado_batalla == PELEANDO || estado_batalla == REINTENTAR) {
 		if (estado_batalla == PELEANDO) {
-			heap_eliminar_raiz (gimnasios);
+			eliminar_gimnasio (gimnasios);
 		} else {
 			estado_batalla = PELEANDO;
 		}
@@ -650,7 +685,7 @@ void enfrentar_gimnasios (heap_t* gimnasios, personaje_t* personaje, bool es_sim
 		}
 		if (proximo_gimnasio) {
 			presentar_gimnasio (*proximo_gimnasio);
-			estado_batalla = enfrentar_gimnasio (*proximo_gimnasio, personaje, es_simulacion);
+			estado_batalla = enfrentar_gimnasio (proximo_gimnasio, personaje, es_simulacion);
 			if (estado_batalla == GANO) {
 				estado_batalla = PELEANDO;
 			}
@@ -667,6 +702,8 @@ void jugar_juego (heap_t* gimnasios, personaje_t** personaje, bool es_simulacion
 	if (!(heap_ver_raiz (gimnasios))) {
 		cargar_gimnasios ("src/GimnasiosKanto.txt", gimnasios);
 	}
+	mostrar_personaje (**personaje);
+	mostrar_gimnasios (gimnasios);
     enfrentar_gimnasios (gimnasios, *personaje, es_simulacion);
 }
 
@@ -674,6 +711,7 @@ personaje_t* crear_entrenador (personaje_t* personaje) {
 	char ruta[MAX_RUTA];
 	printf ("Inserte la ruta del personaje: ");
 	scanf (" %[^\n]", ruta);
+	limpiar_buffer ();
 	return cargar_personaje (ruta);
 }
 
@@ -725,8 +763,9 @@ void menu_inicio(heap_t* gimnasios, personaje_t** personaje){
         jugar_juego (gimnasios, personaje, true);
     } else if (opcion_seleccionada == 'E') {
         (*personaje) = crear_entrenador (*personaje);
-		if (!(*personaje)) {
-			printf ("Ha ocurrido un ERROR al seleccionar tu personaje, intenta nuevamente\n");
+		if (*personaje == NULL) {
+			printf ("Ha ocurrido un ERROR al seleccionar tu personaje, presiona ENTER para continuar\n");
+			getchar ();
 		}
 		menu_inicio (gimnasios, personaje);
     } else if (opcion_seleccionada == 'A') {
@@ -735,9 +774,27 @@ void menu_inicio(heap_t* gimnasios, personaje_t** personaje){
     }
 }
 
+void liberar_datos (heap_t* gimnasios, personaje_t* personaje) {
+	while ((heap_ver_raiz(gimnasios) != NULL)) {
+		eliminar_gimnasio (gimnasios);
+	}
+	heap_destruir (gimnasios);
+
+	while (lista_elementos ((*personaje).pokemon_obtenidos) > 0) {
+		free (lista_primero((*personaje).pokemon_obtenidos));
+		lista_borrar_de_posicion((*personaje).pokemon_obtenidos, 0);
+	}
+	lista_destruir ((*personaje).pokemon_obtenidos);
+	free (personaje);
+
+}
+
 int main () {
 	heap_t* gimnasios = heap_crear (comparador_gimnasios);
 	personaje_t* personaje = NULL;
     menu_inicio(gimnasios, &personaje);
+	liberar_datos (gimnasios, personaje);
     return 0;
 }
+
+/*************************************************************************************************/

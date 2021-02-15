@@ -17,6 +17,6 @@ void heap_eliminar_raiz (heap_t* heap);
 
 void* heap_ver_raiz (heap_t* heap);
 
-void heap_eliminar (heap_t* heap);
+void heap_destruir (heap_t* heap);
 
 #endif /* __HEAP_H__ */

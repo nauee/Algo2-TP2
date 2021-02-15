@@ -11,3 +11,6 @@ debug: main
 	clear
 	gdb ./main
 
+probar: main
+	clear
+	valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./main
