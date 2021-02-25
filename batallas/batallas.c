@@ -3,7 +3,6 @@
 
 #define MAX_NOMBRE 25
 
-// Formula: ((Ataque * 100) / Defensa * 25) + (Velocidad * 30)
 int funcion_batalla_1(void* pkm_1, void* pkm_2) {
     
     pokemon_t pokemon_1 = *(pokemon_t*)pkm_1;
@@ -26,7 +25,6 @@ int funcion_batalla_1(void* pkm_1, void* pkm_2) {
 
 }
 
-// Formula: ((Ataque * Velocidad * 5) / Defensa)
 int funcion_batalla_2(void* pkm_1, void* pkm_2) {
 
     pokemon_t pokemon_1 = *(pokemon_t*)pkm_1;
@@ -49,7 +47,6 @@ int funcion_batalla_2(void* pkm_1, void* pkm_2) {
 
 }
 
-// Formula: (Ataque / 5)
 int funcion_batalla_3(void* pkm_1, void* pkm_2) {
 
     pokemon_t pokemon_1 = *(pokemon_t*)pkm_1;

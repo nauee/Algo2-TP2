@@ -34,7 +34,7 @@ static int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t*
         (*entrenador_leido).nombre[0] = '\0';
         leidos = sscanf(linea, FORMATO_ENTRENADOR, tipo_leido, (*entrenador_leido).nombre);
         (*entrenador_leido).es_lider = ((*tipo_leido) == 'L');
-        (*entrenador_leido).cant_pokemon = 0;
+        (*entrenador_leido).pokemon = lista_crear();
     } else if ((linea[0]) == 'P') {
         (*pokemon_leido).nombre[0] = '\0';
         (*pokemon_leido).velocidad = 0;
@@ -60,7 +60,7 @@ static int leer_de_archivo (FILE* arch_gimnasio, char* tipo_leido, entrenador_t*
 */
 static void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar) {
 
-    if (pokemon_agregar.nombre[0] == '\0' || pokemon_agregar.velocidad <= 0 || pokemon_agregar.ataque <= 0 || pokemon_agregar.defensa <= 0) {
+    if (pokemon_agregar.nombre[0] == '\0' || pokemon_agregar.velocidad <= 0 || pokemon_agregar.ataque <= 0 || pokemon_agregar.defensa <= 0 || lista_elementos ((*entrenador).pokemon) >= 6) {
         return;
     }
 
@@ -69,8 +69,7 @@ static void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar
         return;
     }
     (*pokemon) = pokemon_agregar;
-    ((*entrenador).pokemon[(*entrenador).cant_pokemon]) = pokemon;
-    ((*entrenador).cant_pokemon) ++;
+    lista_insertar((*entrenador).pokemon, pokemon);
 
 }
 
@@ -80,13 +79,14 @@ static void agregar_pokemon (entrenador_t* entrenador, pokemon_t pokemon_agregar
 */
 void agregar_entrenador (gimnasio_t* gimnasio, entrenador_t entrenador_agregar) {
     
-    if (entrenador_agregar.cant_pokemon == 0) {
+    if (lista_vacia(entrenador_agregar.pokemon)) {
         return;
     }
 
     if (entrenador_agregar.nombre[0] == '\0') {
-        for (int i = 0; i < entrenador_agregar.cant_pokemon; i++) {
-            free (entrenador_agregar.pokemon[i]);
+        while (!lista_vacia(entrenador_agregar.pokemon)) {
+            free ((lista_primero(entrenador_agregar.pokemon)));
+            lista_borrar_de_posicion(entrenador_agregar.pokemon, 0);
         }
         return;
     }
@@ -124,9 +124,10 @@ void agregar_gimnasio (heap_t* gimnasios, gimnasio_t gimnasio_agregar) {
     if (!tiene_lider || esta_mal_cargado) {
         while (lista_elementos(gimnasio_agregar.entrenadores) > 0) {
 		    entrenador_t* entrenador_borrar = (entrenador_t*) lista_primero (gimnasio_agregar.entrenadores);
-		    for (int i = 0; i < (*entrenador_borrar).cant_pokemon; i++) {
-		    	free ((*entrenador_borrar).pokemon[i]);
-		    }
+            while (!lista_vacia((*entrenador_borrar).pokemon)) {
+                free ((lista_primero((*entrenador_borrar).pokemon)));
+                lista_borrar_de_posicion((*entrenador_borrar).pokemon, 0);
+            }
 		    free (entrenador_borrar);
 		    lista_borrar_de_posicion (gimnasio_agregar.entrenadores, 0);
 	    }

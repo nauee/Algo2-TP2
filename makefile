@@ -1,16 +1,16 @@
 CFLAGS=-g -std=c99 -Wall -Werror -Wconversion
 
-main: main.c tdas/*/*.c gimnasios/gimnasios.c batallas/batallas.c personaje/personaje.c
-	gcc main.c tdas/*/*.c gimnasios/gimnasios.c batallas/batallas.c personaje/personaje.c $(CFLAGS) -o main
+juego: juego.c tdas/*/*.c gimnasios/gimnasios.c batallas/batallas.c personaje/personaje.c interfaces/interfaces.c
+	gcc juego.c tdas/*/*.c gimnasios/gimnasios.c batallas/batallas.c personaje/personaje.c interfaces/interfaces.c $(CFLAGS) -o juego
 
-ejecutar: main
+ejecutar: juego
 	clear
-	./main
+	./juego
 
-debug: main
+debug: juego
 	clear
-	gdb ./main
+	gdb ./juego
 
-probar: main
+probar: juego
 	clear
-	valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./main
+	valgrind --leak-check=full --track-origins=yes --show-reachable=yes ./juego

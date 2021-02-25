@@ -8,6 +8,7 @@
 #define FORMATO_ENTRENADOR "%c;%[^\n]\n"
 #define FORMATO_POKEMON "%c;%[^;];%i;%i;%i\n"
 #define PUNTOS_MAX_MEJORA 63
+#define MAX_POKEMON_BATALLA 6
 
 /******************************************* Funciones *******************************************/
 
@@ -22,8 +23,8 @@ static int leer_de_archivo (FILE* arch_personaje, char* tipo_leido, pokemon_t* p
 
     if ((linea[0]) == 'E') {
         leidos = sscanf(linea, FORMATO_ENTRENADOR, tipo_leido, (*personaje_leido).nombre);
+        (*personaje_leido).pokemon_para_combatir = lista_crear();
         (*personaje_leido).pokemon_obtenidos = lista_crear();
-        (*personaje_leido).cant_pokemon_para_combatir = 0;
     } else if ((linea[0]) == 'P') {
         (*pokemon_leido).nombre[0] = '\0';
         (*pokemon_leido).velocidad = 0;
@@ -52,9 +53,8 @@ static void agregar_pokemon (personaje_t* personaje, pokemon_t pokemon_agregar) 
         return;
     }
     (*pokemon) = pokemon_agregar;
-    if ((*personaje).cant_pokemon_para_combatir < MAX_POKEMONES_COMBATE) {
-        (*personaje).pokemon_para_combatir[(*personaje).cant_pokemon_para_combatir] = pokemon;
-        ((*personaje).cant_pokemon_para_combatir) ++;
+    if (lista_elementos((*personaje).pokemon_para_combatir) < MAX_POKEMON_BATALLA) {
+        lista_insertar ((*personaje).pokemon_para_combatir, pokemon);
     }
     lista_insertar ((*personaje).pokemon_obtenidos, pokemon);
 

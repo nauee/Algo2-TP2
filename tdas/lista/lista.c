@@ -34,7 +34,7 @@ int lista_insertar_en_posicion(lista_t* lista, void* elemento, size_t posicion) 
         return -1;
     }
 
-    nodo_t* nodo = malloc (sizeof(nodo_t));
+    nodo_t* nodo = calloc (1, sizeof(nodo_t));
     if (nodo == NULL) {
             return -1;
     }

@@ -6,7 +6,6 @@
 /****************************************** Constantes *******************************************/
 
 #define MAX_NOMBRE 25
-#define MAX_POKEMONES_COMBATE 6
 
 /***************************************** Tipos de datos ****************************************/
 
@@ -27,15 +26,13 @@ typedef struct pokemon {
 
 typedef struct entrenador {
     char nombre[MAX_NOMBRE];
-    pokemon_t* pokemon[MAX_POKEMONES_COMBATE];
-    int cant_pokemon;
+    lista_t* pokemon;
     bool es_lider;
 } entrenador_t;
 
 typedef struct personaje {
     char nombre[MAX_NOMBRE];
-    pokemon_t* pokemon_para_combatir[MAX_POKEMONES_COMBATE];
-    int cant_pokemon_para_combatir;
+    lista_t* pokemon_para_combatir;
     lista_t* pokemon_obtenidos; // Lista
 } personaje_t;
 
