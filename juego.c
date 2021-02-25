@@ -246,6 +246,11 @@ int perder_gimnasio (personaje_t* personaje, char* nombre_gimnasio, bool es_simu
     }
 }
 
+/*
+*	Precondiciones: Debe recibir un gimnasio valido, una lista de entrenadores vencidos valida y un personaje valido.
+*	Postcondiciones: Permitira al usuario elegir que hacer luego de ganar a un entrenador, las opciones seran:
+*	mostrar personaje, mostrar gimnasio, rearmar equipo o ir a la siguiente batalla.
+*/
 void menu_gimnasio (gimnasio_t gimnasio, lista_t* entrenadores_vencidos, personaje_t* personaje) {
 	char opcion_seleccionada = ' ';
 	mostrar_menu_gimnasio(gimnasio.nombre);
@@ -270,6 +275,10 @@ void menu_gimnasio (gimnasio_t gimnasio, lista_t* entrenadores_vencidos, persona
 	}
 }
 
+/*
+*	Precondiciones: Debe recibir una lista de entrenadores vencidos valida.
+*	Postcondiciones: Liberara el espacio reservado por los entrenadores dentro de la lista y por la lista en si.
+*/
 void liberar_entrenadores_vencidos (lista_t* entrenadores_vencidos) {
 	while (lista_elementos(entrenadores_vencidos) > 0) {
 		entrenador_t* entrenador_borrar = (entrenador_t*) lista_primero (entrenadores_vencidos);
@@ -284,6 +293,11 @@ void liberar_entrenadores_vencidos (lista_t* entrenadores_vencidos) {
 	lista_destruir (entrenadores_vencidos);
 }
 
+/*
+*	Precondiciones: Debe recibir un gimnasio valido, un personaje valido y un bool que indique si se esta simulando
+*	el juego.
+*	Postcondiciones: Enfrentara al gimnasio enfrentandose a los diferentes entrenadores y devolvera si GANO o PERDIO.
+*/
 int enfrentar_gimnasio (gimnasio_t* gimnasio, personaje_t* personaje, bool es_simulacion) {
 	int estado_batalla = PELEANDO;
 	lista_t* entrenadores_vencidos = lista_crear ();
@@ -318,6 +332,10 @@ int enfrentar_gimnasio (gimnasio_t* gimnasio, personaje_t* personaje, bool es_si
 	return estado_batalla;
 }
 
+/*
+*	Precondiciones: Debe recibir un heap de gimnasios valido.
+*	Postcondiciones: Eliminara el gimnasio del heap y lo liberara.
+*/
 void eliminar_gimnasio (heap_t* gimnasios) {
 	gimnasio_t* gimnasio_borrar = (gimnasio_t*) heap_ver_raiz (gimnasios);
 	lista_destruir ((*gimnasio_borrar).entrenadores);
@@ -325,6 +343,11 @@ void eliminar_gimnasio (heap_t* gimnasios) {
 	heap_eliminar_raiz (gimnasios);
 } 
 
+/*
+*	Precondiciones: Debe recibir un heap de gimnasios valido, un personaje valido y un bool que indique si se esta
+*	simulando el juego.
+*	Postcondiciones: Enfrentara a los gimnasios disponibles en el juego.
+*/
 void enfrentar_gimnasios (heap_t* gimnasios, personaje_t* personaje, bool es_simulacion) {
 	system("clear");
 	int estado_batalla = PELEANDO;
@@ -362,6 +385,12 @@ void enfrentar_gimnasios (heap_t* gimnasios, personaje_t* personaje, bool es_sim
 	}
 }
 
+/*
+*	Precondiciones: Debe recibir un heap de gimnasios valido o vacio, un personaje valido o nulo y un bool que
+*	indique si se esta simulando el juego.
+*	Postcondiciones: Jugara al juego con los gimnasios y personaje recibidos, o usara los predeterminados en caso
+*	de no tener alguno de los dos.
+*/
 void jugar_juego (heap_t* gimnasios, personaje_t** personaje, bool es_simulacion) {
 	if (!(*personaje)) {
 		*personaje = cargar_personaje ("src/Personaje.txt");
@@ -372,6 +401,10 @@ void jugar_juego (heap_t* gimnasios, personaje_t** personaje, bool es_simulacion
     enfrentar_gimnasios (gimnasios, *personaje, es_simulacion);
 }
 
+/*
+*	Precondiciones: Debe recibir un puntero a personaje.
+*	Postcondiciones: Pedira la ruta del personaje al usuario y lo cargara en caso de ser posible.
+*/
 personaje_t* crear_entrenador (personaje_t* personaje) {
 	char ruta[MAX_RUTA];
 	printf ("Inserte la ruta del personaje: ");
@@ -380,6 +413,10 @@ personaje_t* crear_entrenador (personaje_t* personaje) {
 	return cargar_personaje (ruta);
 }
 
+/*
+*	Precondiciones: Debe recibir un heap de gimnasios valido.
+*	Postcondiciones: Pedira la ruta del gimnasio/s al usuario y lo agregara al heap en caso de ser posible.
+*/
 void agregar_nuevo_gimnasio (heap_t* gimnasios) {
 	char ruta[MAX_RUTA];
 	printf ("Inserte la ruta del gimnasio: ");
@@ -387,6 +424,11 @@ void agregar_nuevo_gimnasio (heap_t* gimnasios) {
 	cargar_gimnasios (ruta, gimnasios);
 }
 
+/*
+*	Precondiciones: Debe recibir un heap de gimnasios inicializado y un puntero a personaje.
+*	Postcondiciones: Dara al usuario la posibilidad de elegir entre las diferentes opciones del menu,
+*	las cuales son: jugar juego, simular juego, ingresar archivo entrenador y agregar gimnasio.
+*/
 void menu_inicio(heap_t* gimnasios, personaje_t** personaje){
 	
 	char opcion_seleccionada = ' ';
@@ -416,6 +458,10 @@ void menu_inicio(heap_t* gimnasios, personaje_t** personaje){
     }
 }
 
+/*
+*	Precondiciones: Debe recibir un heap de gimnasios, y un puntero a personaje.
+*	Postcondiciones: Liberara la memoria reservada por todo el programa.
+*/
 void liberar_datos (heap_t* gimnasios, personaje_t* personaje) {
 	while ((heap_ver_raiz(gimnasios) != NULL)) {
 		eliminar_gimnasio (gimnasios);
