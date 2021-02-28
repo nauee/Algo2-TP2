@@ -279,18 +279,18 @@ void menu_gimnasio (gimnasio_t gimnasio, lista_t* entrenadores_vencidos, persona
 *	Precondiciones: Debe recibir una lista de entrenadores vencidos valida.
 *	Postcondiciones: Liberara el espacio reservado por los entrenadores dentro de la lista y por la lista en si.
 */
-void liberar_entrenadores_vencidos (lista_t* entrenadores_vencidos) {
-	while (lista_elementos(entrenadores_vencidos) > 0) {
-		entrenador_t* entrenador_borrar = (entrenador_t*) lista_primero (entrenadores_vencidos);
+void liberar_entrenadores (lista_t* entrenadores) {
+	while (lista_elementos(entrenadores) > 0) {
+		entrenador_t* entrenador_borrar = (entrenador_t*) lista_primero (entrenadores);
 		while (!lista_vacia ((*entrenador_borrar).pokemon)){
             free ((lista_primero((*entrenador_borrar).pokemon)));
             lista_borrar_de_posicion((*entrenador_borrar).pokemon, 0);
 		}
 		lista_destruir ((*entrenador_borrar).pokemon);
 		free (entrenador_borrar);
-		lista_borrar_de_posicion (entrenadores_vencidos, 0);
+		lista_borrar_de_posicion (entrenadores, 0);
 	}
-	lista_destruir (entrenadores_vencidos);
+	lista_destruir (entrenadores);
 }
 
 /*
@@ -324,11 +324,10 @@ int enfrentar_gimnasio (gimnasio_t* gimnasio, personaje_t* personaje, bool es_si
 
 	if (estado_batalla == GANO) {
 		ganar_gimnasio (personaje, (entrenador_t*)(lista_tope (entrenadores_vencidos)), (*gimnasio).nombre, es_simulacion, false);
-		liberar_entrenadores_vencidos (entrenadores_vencidos);
 	} else {
 		estado_batalla = perder_gimnasio (personaje, (*gimnasio).nombre, es_simulacion);
 	}
-
+	liberar_entrenadores (entrenadores_vencidos);
 	return estado_batalla;
 }
 
@@ -338,7 +337,7 @@ int enfrentar_gimnasio (gimnasio_t* gimnasio, personaje_t* personaje, bool es_si
 */
 void eliminar_gimnasio (heap_t* gimnasios) {
 	gimnasio_t* gimnasio_borrar = (gimnasio_t*) heap_ver_raiz (gimnasios);
-	lista_destruir ((*gimnasio_borrar).entrenadores);
+	liberar_entrenadores ((*gimnasio_borrar).entrenadores);
 	free (gimnasio_borrar);
 	heap_eliminar_raiz (gimnasios);
 } 

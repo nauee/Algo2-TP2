@@ -1,4 +1,4 @@
-E;Nahu
+E;Rojo
 P;Luxray;51;77;46
 P;Torterra;41;70;61
 P;Charizard;71;55;45

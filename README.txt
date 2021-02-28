@@ -18,6 +18,10 @@ Lineas extras:
 
 
 Aclaraciones sobre funcionamiento:
+     -> Se utilizó un heap minimal para organizar los gimnasios de manera que el proximo gimnasio sea siempre el mas facil.
+     -> Dentro de la estructura de gimnasios se utilizo una pila de entrenadores de manera que al leer el entrenador sea el primero en entrar y al batallar sea el ultimo en salir.
+     -> Los pokemones de batalla de los entrenadores y del personaje estan guardados en listas para poder recorrerlos usando el iterador al momento de pelear.
+     -> Los pokemones obtenidos del personaje estan guardados en una lista para facilitar la insercion de pokemones y para no tener un limite en la cantidad de pokemones.
      -> En caso de que el usuario no ingrese gimnasios o un personaje, el juego cargara automaticamente los predeterminados (los archivos de los predeterminados
         se encuentran dentro de la carpeta src)
      -> Si el usuario pierde en un gimnasio, los entrenadores vencidos no volveran a ser enfrentados.

@@ -11,7 +11,7 @@
 
 typedef struct gimnasio {
     char nombre[MAX_NOMBRE];
-    lista_t* entrenadores; // Pila
+    lista_t* entrenadores;
     int dificultad;
     int id_funcion_batalla;
 } gimnasio_t;
@@ -33,7 +33,7 @@ typedef struct entrenador {
 typedef struct personaje {
     char nombre[MAX_NOMBRE];
     lista_t* pokemon_para_combatir;
-    lista_t* pokemon_obtenidos; // Lista
+    lista_t* pokemon_obtenidos;
 } personaje_t;
 
 #endif /* __DATOS_H__ */
